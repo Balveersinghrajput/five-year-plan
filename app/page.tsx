@@ -130,30 +130,18 @@ export default function Home() {
   // Auto-scroll to today's date when data finishes loading or year changes
   useEffect(() => {
     if (!loading && selectedYear === startYear) {
-      let attempts = 0;
-      const tryScroll = () => {
-        // Auto-scroll Desktop Horizontal Grid
-        const dContainer = document.querySelector('.grid-container') as HTMLElement;
-        const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
-        if (dContainer && dToday && dToday.offsetLeft > 0) {
-          dContainer.scrollLeft = dToday.offsetLeft - dContainer.clientWidth / 2 + dToday.clientWidth / 2;
+      setTimeout(() => {
+        // Detect if we are on a mobile screen so we only scroll the VISIBLE grid
+        const isMobile = window.innerWidth <= 600;
+        
+        if (isMobile) {
+          const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
+          if (mToday) mToday.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
+          if (dToday) dToday.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
-
-        // Auto-scroll Mobile Vertical Grid
-        const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
-        const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
-        if (mContainer && mToday) {
-          mContainer.scrollTop = mToday.offsetTop - mContainer.clientHeight / 2 + mToday.clientHeight / 2;
-          console.log("Scrolled Mobile:", mContainer.scrollTop, "Offset:", mToday.offsetTop);
-        }
-
-        attempts++;
-        if (attempts < 5) {
-          setTimeout(tryScroll, 200); // Check multiple times for slower mobile browsers
-        }
-      };
-
-      setTimeout(tryScroll, 50);
+      }, 600); // Wait long enough for Vercel production CSS to fully inject and calculate layouts
     }
   }, [loading, selectedYear, startYear]);
 
