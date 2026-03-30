@@ -142,8 +142,9 @@ export default function Home() {
         // Auto-scroll Mobile Vertical Grid
         const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
         const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
-        if (mContainer && mToday && mToday.offsetTop > 0) {
+        if (mContainer && mToday) {
           mContainer.scrollTop = mToday.offsetTop - mContainer.clientHeight / 2 + mToday.clientHeight / 2;
+          console.log("Scrolled Mobile:", mContainer.scrollTop, "Offset:", mToday.offsetTop);
         }
 
         attempts++;
