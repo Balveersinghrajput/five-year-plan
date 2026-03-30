@@ -132,30 +132,26 @@ export default function Home() {
     if (!loading && selectedYear === startYear) {
       let attempts = 0;
       const tryScroll = () => {
-        const isMobile = window.innerWidth <= 600;
         let success = false;
         
-        if (isMobile) {
-          const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
-          const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
-          
-          if (mContainer && mToday && mToday.offsetTop > 0) {
-            mContainer.scrollTop = mToday.offsetTop - (mContainer.clientHeight / 2) + (mToday.clientHeight / 2);
-            success = true;
-          }
-        } else {
-          const dContainer = document.querySelector('.grid-container') as HTMLElement;
-          const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
-          
-          if (dContainer && dToday && dToday.offsetLeft > 0) {
-            dContainer.scrollLeft = dToday.offsetLeft - (dContainer.clientWidth / 2) + (dToday.clientWidth / 2);
-            success = true;
-          }
+        // Auto-scroll logic (we check offsetWidth > 0 to prove it's NOT hidden by CSS display: none)
+        const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
+        const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
+        if (mContainer && mToday && mToday.offsetWidth > 0 && mToday.offsetTop > 0) {
+          mContainer.scrollTop = mToday.offsetTop - (mContainer.clientHeight / 2) + (mToday.clientHeight / 2);
+          success = true;
+        }
+
+        const dContainer = document.querySelector('.grid-container') as HTMLElement;
+        const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
+        if (dContainer && dToday && dToday.offsetWidth > 0 && dToday.offsetLeft > 0) {
+          dContainer.scrollLeft = dToday.offsetLeft - (dContainer.clientWidth / 2) + (dToday.clientWidth / 2);
+          success = true;
         }
 
         attempts++;
-        if (!success && attempts < 15) {
-          setTimeout(tryScroll, 100); // Heavily retry up to 1.5 seconds for slow Vercel CSS injection
+        if (!success && attempts < 50) {
+          setTimeout(tryScroll, 100); // Retry extensively up to 5 seconds
         }
       };
 
