@@ -130,18 +130,36 @@ export default function Home() {
   // Auto-scroll to today's date when data finishes loading or year changes
   useEffect(() => {
     if (!loading && selectedYear === startYear) {
-      setTimeout(() => {
-        // Detect if we are on a mobile screen so we only scroll the VISIBLE grid
+      let attempts = 0;
+      const tryScroll = () => {
         const isMobile = window.innerWidth <= 600;
+        let success = false;
         
         if (isMobile) {
+          const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
           const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
-          if (mToday) mToday.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          if (mContainer && mToday && mToday.offsetTop > 0) {
+            mContainer.scrollTop = mToday.offsetTop - (mContainer.clientHeight / 2) + (mToday.clientHeight / 2);
+            success = true;
+          }
         } else {
+          const dContainer = document.querySelector('.grid-container') as HTMLElement;
           const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
-          if (dToday) dToday.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          
+          if (dContainer && dToday && dToday.offsetLeft > 0) {
+            dContainer.scrollLeft = dToday.offsetLeft - (dContainer.clientWidth / 2) + (dToday.clientWidth / 2);
+            success = true;
+          }
         }
-      }, 600); // Wait long enough for Vercel production CSS to fully inject and calculate layouts
+
+        attempts++;
+        if (!success && attempts < 15) {
+          setTimeout(tryScroll, 100); // Heavily retry up to 1.5 seconds for slow Vercel CSS injection
+        }
+      };
+
+      setTimeout(tryScroll, 50);
     }
   }, [loading, selectedYear, startYear]);
 
