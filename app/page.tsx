@@ -130,21 +130,29 @@ export default function Home() {
   // Auto-scroll to today's date when data finishes loading or year changes
   useEffect(() => {
     if (!loading && selectedYear === startYear) {
-      setTimeout(() => {
+      let attempts = 0;
+      const tryScroll = () => {
         // Auto-scroll Desktop Horizontal Grid
         const dContainer = document.querySelector('.grid-container') as HTMLElement;
         const dToday = document.querySelector('.grid-desktop .today') as HTMLElement;
-        if (dContainer && dToday) {
+        if (dContainer && dToday && dToday.offsetLeft > 0) {
           dContainer.scrollLeft = dToday.offsetLeft - dContainer.clientWidth / 2 + dToday.clientWidth / 2;
         }
 
         // Auto-scroll Mobile Vertical Grid
         const mContainer = document.querySelector('.m-grid-body') as HTMLElement;
         const mToday = document.querySelector('.grid-mobile .today') as HTMLElement;
-        if (mContainer && mToday) {
+        if (mContainer && mToday && mToday.offsetTop > 0) {
           mContainer.scrollTop = mToday.offsetTop - mContainer.clientHeight / 2 + mToday.clientHeight / 2;
         }
-      }, 100);
+
+        attempts++;
+        if (attempts < 5) {
+          setTimeout(tryScroll, 200); // Check multiple times for slower mobile browsers
+        }
+      };
+
+      setTimeout(tryScroll, 50);
     }
   }, [loading, selectedYear, startYear]);
 
